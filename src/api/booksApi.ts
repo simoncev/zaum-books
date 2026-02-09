@@ -21,19 +21,19 @@ async function fetchJson<T>(url: string): Promise<T> {
 }
 
 export async function getBookNames(): Promise<string[]> {
-  const url = joinUrl(BASE, "/books/pages/book/get-book-names");
+  const url = joinUrl(BASE, "/pages/book/get-book-names");
   return await fetchJson<string[]>(url);
 }
 
 export async function getBookLang(bookName: string): Promise<string> {
   const enc = encodeURIComponent(bookName);
-  const url = joinUrl(BASE, `/books/books/get-lang/${enc}`);
+  const url = joinUrl(BASE, `/books/get-lang/${enc}`);
   return await fetchText(url);
 }
 
 export async function getPageCount(bookName: string): Promise<number> {
   const enc = encodeURIComponent(bookName);
-  const url = joinUrl(BASE, `/books/pages/book/get-page-count/${enc}`);
+  const url = joinUrl(BASE, `/pages/book/get-page-count/${enc}`);
   const txt = await fetchText(url);
   const n = Number(txt);
   if (!Number.isFinite(n)) throw new Error(`Invalid page-count: ${txt}`);
@@ -49,7 +49,7 @@ export type BookSize = { width: number; height: number };
 
 export async function getBookSize(bookName: string): Promise<BookSize> {
   const enc = encodeURIComponent(bookName);
-  const url = joinUrl(BASE, `/books/books/get-size/${enc}`);
+  const url = joinUrl(BASE, `/books/get-size/${enc}`);
   const j = await fetchJson<any>(url);
 
   const w = Number(j?.width);
@@ -68,5 +68,5 @@ export async function getBookSize(bookName: string): Promise<BookSize> {
 export function getPageImageUrl(bookName: string, pageNo: number): string {
   const pageKey = `${bookName}-${pad4(pageNo)}`;
   const enc = encodeURIComponent(pageKey);
-  return joinUrl(BASE, `/books/pages/get-page-image/${enc}`);
+  return joinUrl(BASE, `/pages/get-page-image/${enc}`);
 }

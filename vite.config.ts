@@ -58,7 +58,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "https://simoncev.org:9999",
+        target: "https://simoncev.org:9999/books",
         changeOrigin: true,
         secure: false,
         rewrite: (path) => path.replace(/^\/api/, ""),

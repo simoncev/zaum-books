@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "ES2023",
+    "module": "CommonJS",
+    "moduleResolution": "node",
+
+    "rootDir": ".",
+    "outDir": "../electron-dist",
+
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+
+    "types": ["node"]
+  },
+  "include": ["main.ts", "preload.ts"]
+}

@@ -1,0 +1,20 @@
+directories:
+  output: release
+  buildResources: build
+appId: org.genrep.booksreader
+productName: Books Reader
+files:
+  - filter:
+      - dist/**
+      - electron-dist/**
+      - package.json
+asar: true
+win:
+  target:
+    - nsis
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+electronVersion: 39.2.7

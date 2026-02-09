@@ -1,0 +1,109 @@
+/* src/style.css */
+
+/* Global baseline: allow Electron window transparency */
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+  background: #0000;
+}
+
+/* Root variables & typography */
+:root {
+  color-scheme: dark;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+
+  /* IMPORTANT: must be transparent for Electron transparent window */
+  background: #0000; /* was #000 */
+
+  color: #eee;
+}
+
+/* Body should not paint a solid background */
+body {
+  margin: 0;
+  background: transparent; /* was #000 */
+  color: #eee;
+}
+
+/* Small code pill */
+code {
+  background: rgba(17, 17, 17, 0.85);
+  padding: 2px 6px;
+  border-radius: 8px;
+}
+
+/* Card surfaces (keep readable, but allow “glass” feel if window is transparent) */
+.card {
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(10, 10, 10, 0.82);
+  border-radius: 16px;
+  padding: 16px;
+}
+
+/* Generic button style */
+.btn {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(17, 17, 17, 0.85);
+  color: #eee;
+  padding: 10px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.btn:hover {
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn.primary {
+  border-color: rgba(255, 255, 255, 0.28);
+  background: rgba(26, 26, 26, 0.92);
+  font-weight: 700;
+}
+
+.muted {
+  color: #aaa;
+}
+
+.small {
+  font-size: 12px;
+}
+
+.error {
+  color: #ffb4b4;
+}
+
+/* Reader paper frame (keep it a surface; still can be semi-transparent) */
+.paper {
+  position: relative;
+  background: rgba(17, 17, 17, 0.55); /* was #111 */
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  outline: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+/* Frameless drag region (Electron) */
+.topbar {
+  -webkit-app-region: drag;
+}
+.topbar button,
+.topbar input,
+.topbar select {
+  -webkit-app-region: no-drag;
+}
+.scroller {
+  overflow: auto;       /* already */
+  justify-content: flex-start; /* instead of center, so big zoom feels natural */
+}
+
+
+/* DEBUG OUTLINE (remove later) */
+#app {
+  outline: 6px solid rgba(0, 255, 255, 0.6);
+}

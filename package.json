@@ -1,0 +1,56 @@
+{
+  "main": "electron-dist/main.js",
+  "name": "org.genrep.booksreader",
+  "description": "Genrep Electron Book Reader",
+  "author": "Kliment Simonchev",
+  "version": "0.0.1",
+  "scripts": {
+    "electron:dev": "tsc -p electron/tsconfig.json && electron .",
+    "electron:prod": "tsc -p electron/tsconfig.json && electron . --prod",
+    "vite-build": "vite build && tsc -p electron/tsconfig.json",
+    "vite-build-electron": "vite build && tsc -p electron/tsconfig.json",
+    "dist": "npm run vite-build && electron-builder",
+    "dev": "vite --mode dev",
+    "pwa:build-netlify": "vite build --mode netlify",
+    "pwa:preview": "vite preview --host --port 4173",
+    "pwa": "npm run pwa:build && npm run pwa:preview"
+  },
+  "build": {
+    "appId": "org.genrep.booksreader",
+    "productName": "Books Reader",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**",
+      "electron-dist/**",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "electron/assets",
+        "to": "assets"
+      }
+    ],
+    "asar": true,
+    "win": {
+      "target": [
+        "nsis"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.3",
+    "@vite-pwa/assets-generator": "^1.0.2",
+    "@vitejs/plugin-vue": "^6.0.3",
+    "@vue/tsconfig": "^0.8.1",
+    "electron": "^39.2.7",
+    "vite-plugin-pwa": "^1.2.0"
+  }
+}

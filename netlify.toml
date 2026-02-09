@@ -1,0 +1,28 @@
+[[redirects]]
+from = "/__rdtest"
+to = "https://example.com"
+status = 302
+force = true
+
+[[redirects]]
+from = "/api/*"
+to = "https://simoncev.org:9999/:splat"
+status = 200
+force = true
+
+[[redirects]]
+from = "/genrep"
+to = "https://www.genrep.info"
+status = 302
+force = true
+
+[[redirects]]
+from = "/genrep/*"
+to = "https://www.genrep.info/:splat"
+status = 302
+force = true
+
+[[redirects]]
+from = "/*"
+to = "/index.html"
+status = 200

@@ -1,0 +1,5 @@
+{
+  "preset": "minimal",
+  "images": ["public/book.png"],
+  "output": "public"
+}

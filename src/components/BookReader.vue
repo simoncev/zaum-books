@@ -201,6 +201,18 @@
         </div>
       </div>
     </transition>
+
+    <transition name="modal-fade">
+      <div v-if="loadError" class="modal" role="alertdialog" aria-modal="true">
+        <div class="dialog errorDialog">
+          <div class="msg">{{ loadError }}</div>
+          <div class="dialogActions">
+            <button class="btn" @click="loadBook">Retry</button>
+            <button class="btn" @click="dismissLoadError">Back</button>
+          </div>
+        </div>
+      </div>
+    </transition>
   </div>
 </template>
 
@@ -489,6 +501,7 @@ const stagedUrl = computed(() =>
 /* ---------- navigation & transitions ---------- */
 const busy = ref(false);
 const busyText = ref("");
+const loadError = ref("");
 
 const stageDir = ref<"next" | "prev">("next");
 const transitionName = computed(() => (stageDir.value === "next" ? "page-slide-next" : "page-slide-prev"));
@@ -540,6 +553,11 @@ function next() {
 function onBack() {
   if (busy.value) return;
   remember();
+  emit("back");
+}
+
+function dismissLoadError() {
+  loadError.value = "";
   emit("back");
 }
 
@@ -866,55 +884,67 @@ function onVisibility() {
 }
 
 /* ---------- lifecycle ---------- */
+function toErrorMessage(err: unknown, fallback: string) {
+  if (err instanceof Error && err.message) return err.message;
+  if (typeof err === "string" && err.trim()) return err;
+  return fallback;
+}
+
 async function loadBook() {
   busy.value = true;
   busyText.value = "Loading book…";
+  loadError.value = "";
   clearCache();
   basePaperWidthAtScale1.value = null;
-
-  pageCount.value = await getPageCount(props.bookName);
-
-  // server size
-  bookSizeCm.value = null;
   try {
-    const s = await getBookSize(props.bookName);
-    if (s && Number.isFinite(s.width) && Number.isFinite(s.height) && s.width > 0 && s.height > 0) {
-      bookSizeCm.value = s;
-    }
-  } catch {
+    pageCount.value = await getPageCount(props.bookName);
+
+    // server size
     bookSizeCm.value = null;
+    try {
+      const s = await getBookSize(props.bookName);
+      if (s && Number.isFinite(s.width) && Number.isFinite(s.height) && s.width > 0 && s.height > 0) {
+        bookSizeCm.value = s;
+      }
+    } catch {
+      bookSizeCm.value = null;
+    }
+
+    // restore view settings (mode + last custom scale)
+    const vs = loadBookViewSettings(props.bookName);
+    if (vs) {
+      lastCustomScale.value = clamp(vs.customScale, 0.6, 6.0);
+      if (vs.mode === "custom") userScale.value = lastCustomScale.value;
+      viewMode.value = (vs.mode as ViewMode) || "fit";
+    } else {
+      viewMode.value = "fit";
+      lastCustomScale.value = 1.0;
+    }
+
+    // start page
+    const start = clamp(Math.floor(Number(props.initialPage ?? 1) || 1), 1, pageCount.value);
+    pageNo.value = start;
+
+    await preload(start);
+    preload(start + 1);
+    preload(start - 1);
+
+    remember();
+
+    // apply restored mode
+    if (viewMode.value === "fit") await fitPage();
+    if (viewMode.value === "original") await setOriginalSize();
+    if (viewMode.value === "custom") userScale.value = lastCustomScale.value;
+
+    // persist (ensure store exists)
+    persistView();
+  } catch (err) {
+    console.error("Failed to load book", err);
+    loadError.value = toErrorMessage(err, `Failed to load "${props.bookName}".`);
+  } finally {
+    busy.value = false;
+    busyText.value = "";
   }
-
-  // restore view settings (mode + last custom scale)
-  const vs = loadBookViewSettings(props.bookName);
-  if (vs) {
-    lastCustomScale.value = clamp(vs.customScale, 0.6, 6.0);
-    if (vs.mode === "custom") userScale.value = lastCustomScale.value;
-    viewMode.value = (vs.mode as ViewMode) || "fit";
-  } else {
-    viewMode.value = "fit";
-    lastCustomScale.value = 1.0;
-  }
-
-  // start page
-  const start = clamp(Math.floor(Number(props.initialPage ?? 1) || 1), 1, pageCount.value);
-  pageNo.value = start;
-
-  await preload(start);
-  preload(start + 1);
-  preload(start - 1);
-
-  busy.value = false;
-  busyText.value = "";
-  remember();
-
-  // apply restored mode
-  if (viewMode.value === "fit") await fitPage();
-  if (viewMode.value === "original") await setOriginalSize();
-  if (viewMode.value === "custom") userScale.value = lastCustomScale.value;
-
-  // persist (ensure store exists)
-  persistView();
 }
 
 watch(() => [props.bookName, props.initialPage] as const, loadBook, { immediate: true });
@@ -1218,6 +1248,18 @@ onBeforeUnmount(() => {
   gap: 14px;
   border: 1px solid rgba(255, 255, 255, 0.14);
   backdrop-filter: blur(10px);
+}
+
+.errorDialog {
+  flex-direction: column;
+  align-items: stretch;
+  min-width: min(92vw, 440px);
+}
+
+.dialogActions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
 }
 
 .spinner {

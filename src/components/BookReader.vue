@@ -169,11 +169,11 @@
           <img
             ref="imgEl"
             class="page"
-            :class="{ blurred: busy }"
             :src="currentUrl"
             decoding="async"
             draggable="false"
             :style="imgStyle"
+            @error="onCurrentImageError"
           />
 
           <transition :name="transitionName" @after-enter="commitStage">
@@ -184,6 +184,7 @@
               decoding="async"
               draggable="false"
               :style="imgStyle"
+              @error="onStagedImageError"
             />
           </transition>
 
@@ -495,8 +496,7 @@ async function preload(page: number) {
 const stagedPage = ref<number | null>(null);
 const currentUrl = computed(() => cache.get(pageNo.value)?.url ?? getPageImageUrl(props.bookName, pageNo.value));
 const stagedUrl = computed(() =>
-  stagedPage.value == null ? "" : cache.get(stagedPage.value)?.url ?? getPageImageUrl(props.bookName, stagedPage.value)
-);
+  stagedPage.value == null ? "" : cache.get(stagedPage.value)?.url ?? getPageImageUrl(props.bookName, stagedPage.value));
 
 /* ---------- navigation & transitions ---------- */
 const busy = ref(false);
@@ -522,6 +522,7 @@ async function goTo(p: number) {
     preload(p - 1);
   } catch (e) {
     console.error(e);
+    loadError.value = toErrorMessage(e, `Failed to load page ${p} of "${props.bookName}".`);
     stagedPage.value = null;
     busy.value = false;
     busyText.value = "";
@@ -946,6 +947,23 @@ async function loadBook() {
     busyText.value = "";
   }
 }
+function onCurrentImageError() {
+  const p = pageNo.value;
+  loadError.value = `Failed to display page ${p} of "${props.bookName}".`;
+  busy.value = false;
+  busyText.value = "";
+}
+
+function onStagedImageError() {
+  const p = stagedPage.value;
+  loadError.value = p == null
+    ? `Failed to load next page of "${props.bookName}".`
+    : `Failed to load page ${p} of "${props.bookName}".`;
+
+  stagedPage.value = null;
+  busy.value = false;
+  busyText.value = "";
+}
 
 watch(() => [props.bookName, props.initialPage] as const, loadBook, { immediate: true });
 
@@ -1196,6 +1214,10 @@ onBeforeUnmount(() => {
 
 .page.blurred {
   filter: blur(2px) brightness(0.82);
+}
+
+.page.loading {
+  filter:  opacity(0.5);
 }
 
 .staged {

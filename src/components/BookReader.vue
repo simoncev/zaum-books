@@ -1,12 +1,6 @@
 <!-- src/components/BookReader.vue -->
 <template>
-  <div
-    class="reader-root"
-    tabindex="0"
-    @keydown="onKeyDown"
-    @keyup="onKeyUp"
-    @mousemove="onMouseMove"
-  >
+  <div class="reader-root" tabindex="0" @keydown="onKeyDown" @keyup="onKeyUp" @mousemove="onMouseMove">
     <!-- Top bar -->
     <header class="topbar">
       <!-- ROW 1 -->
@@ -63,19 +57,15 @@
           </button>
 
           <!-- Voice control -->
-          <button
-            class="btn"
-            @click="toggleVoice"
-            :disabled="!voiceSupported"
-            :class="{ active: voiceActive }"
-            title="Voice control (Chrome/Edge). Example commands: next, previous, go to page 12, zoom in/out, fit, original, reset, voice off."
-          >
+          <button class="btn" @click="toggleVoice" :disabled="!voiceSupported" :class="{ active: voiceActive }"
+            title="Voice control (Chrome/Edge). Example commands: next, previous, go to page 12, zoom in/out, fit, original, reset, voice off.">
             <span class="ico">🎙</span>
             <span v-if="!isTiny" class="lbl">{{ voiceActive ? "Voice ON" : "Voice" }}</span>
           </button>
 
           <!-- Visualized last command/status -->
-          <span v-if="voiceSupported" class="voiceChip" :class="{ on: voiceActive, flash: voiceFlash }" aria-live="polite">
+          <span v-if="voiceSupported" class="voiceChip" :class="{ on: voiceActive, flash: voiceFlash }"
+            aria-live="polite">
             <span class="dot2" :class="{ ok: voiceActive }"></span>
             <span class="txt">{{ voiceLabel }}</span>
           </span>
@@ -95,35 +85,21 @@
             <span class="lbl">Fit</span>
           </button>
 
-          <button
-            class="btn"
-            @click="setViewMode('original')"
-            :class="{ active: viewMode === 'original' }"
-            title="Original 1:1 pixels (1)"
-          >
+          <button class="btn" @click="setViewMode('original')" :class="{ active: viewMode === 'original' }"
+            title="Original 1:1 pixels (1)">
             <span class="ico">1:1</span>
             <span class="lbl">Original</span>
           </button>
 
           <!-- A4/A5 only when server size is missing -->
-          <button
-            v-if="!bookSizeCm"
-            class="btn"
-            @click="setFormat('A4')"
-            :class="{ active: pageFormat === 'A4' }"
-            title="A4 baseline"
-          >
+          <button v-if="!bookSizeCm" class="btn" @click="setFormat('A4')" :class="{ active: pageFormat === 'A4' }"
+            title="A4 baseline">
             <span class="ico">📄</span>
             <span class="lbl">A4</span>
           </button>
 
-          <button
-            v-if="!bookSizeCm"
-            class="btn"
-            @click="setFormat('A5')"
-            :class="{ active: pageFormat === 'A5' }"
-            title="A5 baseline"
-          >
+          <button v-if="!bookSizeCm" class="btn" @click="setFormat('A5')" :class="{ active: pageFormat === 'A5' }"
+            title="A5 baseline">
             <span class="ico">📄</span>
             <span class="lbl">A5</span>
           </button>
@@ -137,15 +113,8 @@
         <div class="sliders">
           <label class="ctl" title="Custom scale (moving slider switches to Custom)">
             <span class="ctlLbl">Scale</span>
-            <input
-              class="rng"
-              type="range"
-              min="0.6"
-              max="3"
-              step="0.02"
-              v-model.number="userScale"
-              @input="onScaleInput"
-            />
+            <input class="rng" type="range" min="0.6" max="3" step="0.02" v-model.number="userScale"
+              @input="onScaleInput" />
             <span class="val">{{ userScale.toFixed(2) }}</span>
           </label>
 
@@ -160,32 +129,15 @@
 
     <!-- Page viewport -->
     <div class="viewport">
-      <div
-        ref="scroller"
-        class="scroller"
-        :class="{ scrollable: viewMode === 'original' || (viewMode === 'custom' && userScale > 1.0) }"
-      >
+      <div ref="scroller" class="scroller"
+        :class="{ scrollable: viewMode === 'original' || (viewMode === 'custom' && userScale > 1.0) }">
         <div ref="paperEl" class="paper" :style="paperStyle">
-          <img
-            ref="imgEl"
-            class="page"
-            :src="currentUrl"
-            decoding="async"
-            draggable="false"
-            :style="imgStyle"
-            @error="onCurrentImageError"
-          />
+          <img ref="imgEl" class="page" :class="{ blurred: busy }" :src="currentUrl" decoding="sync" draggable="false"
+            :style="imgStyle" @error="onCurrentImageError" />
 
           <transition :name="transitionName" @after-enter="commitStage">
-            <img
-              v-if="stagedPage !== null"
-              class="page staged"
-              :src="stagedUrl"
-              decoding="async"
-              draggable="false"
-              :style="imgStyle"
-              @error="onStagedImageError"
-            />
+            <img v-if="stagedPage !== null" class="page staged" :src="stagedUrl" decoding="async" draggable="false"
+              :style="imgStyle" @error="onStagedImageError" />
           </transition>
 
           <div v-if="lensActive && lensReady" class="lens" :style="lensStyle" aria-hidden="true"></div>
@@ -530,17 +482,20 @@ async function goTo(p: number) {
 }
 
 function commitStage() {
-  if (stagedPage.value != null) pageNo.value = stagedPage.value;
-  stagedPage.value = null;
-  busy.value = false;
-  busyText.value = "";
+  setTimeout(() => {
+    if (stagedPage.value != null) pageNo.value = stagedPage.value;
+    stagedPage.value = null;
+    busy.value = false;
+    busyText.value = "";
 
-  remember();
-  nextTick(async () => {
-    await captureBaselineWidthIfNeeded();
-    syncLensMetrics();
-  });
-  scroller.value?.scrollTo({ top: 0 });
+    remember();
+    nextTick(async () => {
+      await captureBaselineWidthIfNeeded();
+      syncLensMetrics();
+    });
+    scroller.value?.scrollTo({ top: 0 });
+  }, 50)
+
 }
 
 function prev() {
@@ -783,7 +738,7 @@ async function startVoice() {
   stopping = true;
   try {
     rec?.stop();
-  } catch {}
+  } catch { }
   rec = null;
   stopping = false;
 
@@ -862,7 +817,7 @@ function stopVoice() {
 
   try {
     rec?.stop();
-  } catch {}
+  } catch { }
   rec = null;
 
   // release stopping flag a bit later (Chrome async end)
@@ -1217,7 +1172,7 @@ onBeforeUnmount(() => {
 }
 
 .page.loading {
-  filter:  opacity(0.5);
+  filter: opacity(0.5);
 }
 
 .staged {

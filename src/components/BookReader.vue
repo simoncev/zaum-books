@@ -136,7 +136,7 @@
             :style="imgStyle" @error="onCurrentImageError" />
 
           <transition :name="transitionName" @after-enter="commitStage">
-            <img v-if="stagedPage !== null" class="page staged" :src="stagedUrl" decoding="async" draggable="false"
+            <img v-if="stagedPage !== null" class="page staged" :src="stagedUrl" decoding="sync" draggable="false"
               :style="imgStyle" @error="onStagedImageError" />
           </transition>
 

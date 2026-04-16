@@ -11,8 +11,9 @@
     "vite-build-electron": "vite build && tsc -p electron/tsconfig.json",
     "dist": "npm run vite-build && electron-builder",
     "dev": "vite --mode dev",
-    "pwa:build-netlify": "vite build --mode netlify",
+    "pwa:build": "vite build",
     "pwa:preview": "vite preview --host --port 4173",
+    "pwa:build-netlify": "vite build --mode netlify",
     "pwa": "npm run pwa:build && npm run pwa:preview"
   },
   "build": {
